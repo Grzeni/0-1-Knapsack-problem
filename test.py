@@ -19,7 +19,7 @@ memes2 = [
     ('g', 32000, 5300)
 ]
 
-usb_size3 = 2
+usb_size3 = 1
 memes3 = [
     ('a', 140, 5),
     ('b', 33, 62),
@@ -29,7 +29,7 @@ memes3 = [
     ('f', 900, 17)
 ]
 
-usb_size4 = 4
+usb_size4 = 2
 memes4 = [
     ('a', 10, 45),
     ('b', 50, 16),
@@ -38,9 +38,6 @@ memes4 = [
     ('e', 189, 311),
     ('f', 1664, 1119)
 ]
-
-print(calculate(usb_size3, memes3))
-print(calculate(usb_size4, memes4))
 
 
 class TestKnapsack(unittest.TestCase):
@@ -55,11 +52,11 @@ class TestKnapsack(unittest.TestCase):
 
     def test_harder2(self):
         self.assertEqual(calculate(usb_size3, memes3),
-                         (107, {'c', 'd', 'e', 'b', 'f', 'a'}))
+                         (90, {'a', 'd', 'e', 'c', 'b'}))
 
     def test_harder3(self):
         self.assertEqual(calculate(usb_size4, memes4),
-                         (1561, {'c', 'd', 'e', 'b', 'f', 'a'}))
+                         (1533, {'b', 'e', 'a', 'f', 'd'}))
 
 
 unittest.main()
