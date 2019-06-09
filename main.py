@@ -1,48 +1,68 @@
-usb_size = 1
-memes = [
-    ('rollsafe.jpg', 205, 6),
-    ('sad_pepe_compilation.gif', 410, 10),
-    ('yodeling_kid.avi', 605, 12)
-]
-
-usb_size2 = 64
-memes2 = [
-    ('a', 204, 70,),
-    ('b', 22400, 800),
-    ('c', 234, 80),
-    ('d', 5000, 240),
-    ('e', 64000, 6700),
-    ('f', 32000, 5400),
-    ('g', 32000, 5300)
-]
+from typing import List, Tuple
 
 
-def calculate(usb_size, memes):
+def calculate(usb_size: int, memes: List[Tuple[str, int, int]]) -> Tuple[int, set]:
+    """
+    Calculates a set of memes which will provide the biggest profit when when sold on a USB stick.
+
+    Params:
+    usb_size - the size of the USB stick (int)
+    memes - a list of tuples containing the title (str),
+    weight in MiB (int) and cost in caps (int) of each meme
+
+    Output:
+    (max_cost, res) - a tuple containing the maximum profit which can me acchieved
+    as well as the set of meme titles that generate it
+    """
+
+    # typechecking the arguments
+    if type(usb_size) is not int:
+        raise TypeError('usb_size has to be of type int')
+    if type(memes) is not list:
+        raise TypeError('memes has to be of type list')
+    for meme in memes:
+        if len(meme) != 3:
+            raise ValueError(
+                'each element of memes has to be a 3-element tuple')
+        n, w, c = meme
+        if type(n) is not str:
+            raise TypeError(
+                'the first argument of a tuple in memes has to be of type string')
+        if type(w) is not int:
+            raise TypeError(
+                'the second argument of a tuple in memes has to be of type int')
+        if type(c) is not int:
+            raise TypeError(
+                'the third argument of a tuple in memes has to be of type int')
+
+    # preproccesing the arguments
     num_of_memes = len(memes)
     size = usb_size*1024
-    weights = [0] + [memes[i][1] for i in range(num_of_memes)]
-    costs = [0] + [memes[i][2] for i in range(num_of_memes)]
-    tab = [[0 for cols in range(size+1)] for rows in range(num_of_memes+1)]
-    res = set({})
-    for i in range(0, num_of_memes+1):
-        for j in range(0, size+1):
+    weights = [0] + [meme[1] for meme in memes]
+    costs = [0] + [meme[2] for meme in memes]
+    memo_tab = [[0] * (size + 1) for _ in range(num_of_memes + 1)]
+    res = set()
+
+    # filling up the memoization table to get the maximum cost
+    for i in range(num_of_memes + 1):
+        for j in range(size + 1):
             if i == 0 or j == 0:
-                tab[i][j] = 0
+                memo_tab[i][j] = 0
             elif weights[i] <= j:
-                tab[i][j] = max(costs[i] + tab[i-1][j-weights[i]], tab[i-1][j])
+                memo_tab[i][j] = max(
+                    costs[i] + memo_tab[i - 1][j-weights[i]], memo_tab[i - 1][j])
             else:
-                tab[i][j] = tab[i-1][j]
-    cost = tab[num_of_memes][j]
+                memo_tab[i][j] = memo_tab[i - 1][j]
+    max_cost = memo_tab[-1][j]
+
+    # backtracking to retrieve the meme titles, which provide the highest profit
     n, m = num_of_memes, size
     while n > 0 and m > 0:
-        if tab[n][m] == tab[n-1][m]:
+        if memo_tab[n][m] == memo_tab[n - 1][m]:
             n -= 1
         else:
-            res.add(memes[n-1][0])
+            res.add(memes[n - 1][0])
             m = m - weights[n]
             n -= 1
-    return (cost, res)
 
-
-print(calculate(usb_size, memes))
-print(calculate(usb_size2, memes2))
+    return (max_cost, res)
