@@ -3,7 +3,8 @@ from typing import List, Tuple
 
 def calculate(usb_size: int, memes: List[Tuple[str, int, int]]) -> Tuple[int, set]:
     """
-    Calculates a set of memes which will provide the biggest profit when when sold on a USB stick.
+    Calculates a set of memes which will provide the biggest profit 
+    when sold on a USB stick with a given capacity.
 
     Params:
     usb_size - the size of the USB stick (int)
@@ -11,29 +12,12 @@ def calculate(usb_size: int, memes: List[Tuple[str, int, int]]) -> Tuple[int, se
     weight in MiB (int) and cost in caps (int) of each meme
 
     Output:
-    (max_cost, res) - a tuple containing the maximum profit which can me acchieved
-    as well as the set of meme titles that generate it
+    (max_cost, res) - a tuple containing the maximum profit which can me 
+    achieved as well as the set of meme titles that generate it
     """
 
-    # typechecking the arguments
-    if type(usb_size) is not int:
-        raise TypeError('usb_size has to be of type int')
-    if type(memes) is not list:
-        raise TypeError('memes has to be of type list')
-    for meme in memes:
-        if len(meme) != 3:
-            raise ValueError(
-                'each element of memes has to be a 3-element tuple')
-        n, w, c = meme
-        if type(n) is not str:
-            raise TypeError(
-                'the first argument of a tuple in memes has to be of type string')
-        if type(w) is not int:
-            raise TypeError(
-                'the second argument of a tuple in memes has to be of type int')
-        if type(c) is not int:
-            raise TypeError(
-                'the third argument of a tuple in memes has to be of type int')
+    # typechecking the arguments and their count
+    arg_check(usb_size, memes)
 
     # preproccesing the arguments
     num_of_memes = len(memes)
@@ -50,12 +34,13 @@ def calculate(usb_size: int, memes: List[Tuple[str, int, int]]) -> Tuple[int, se
                 memo_tab[i][j] = 0
             elif weights[i] <= j:
                 memo_tab[i][j] = max(
-                    costs[i] + memo_tab[i - 1][j-weights[i]], memo_tab[i - 1][j])
+                    costs[i] + memo_tab[i - 1][j-weights[i]],
+                    memo_tab[i - 1][j])
             else:
                 memo_tab[i][j] = memo_tab[i - 1][j]
     max_cost = memo_tab[-1][j]
 
-    # backtracking to retrieve the meme titles, which provide the highest profit
+    # backtracking to retrieve the meme titles, that provided the profit
     n, m = num_of_memes, size
     while n > 0 and m > 0:
         if memo_tab[n][m] == memo_tab[n - 1][m]:
@@ -66,3 +51,30 @@ def calculate(usb_size: int, memes: List[Tuple[str, int, int]]) -> Tuple[int, se
             n -= 1
 
     return (max_cost, res)
+
+
+def arg_check(usb_size, memes):
+    """
+    Raises different kinds of errors if any types of the arguments 
+    are missmatched or the amount of arguments is incorrect.
+    """
+
+    if type(usb_size) is not int:
+        raise TypeError('usb_size has to be of type int')
+    if type(memes) is not list:
+        raise TypeError('memes has to be of type list')
+    for meme in memes:
+        if len(meme) != 3:
+            raise ValueError(
+                'each element of memes has to be a 3-element tuple')
+        n, w, c = meme
+        if type(n) is not str:
+            raise TypeError(
+                'the first argument of a tuple in memes has to be of type str')
+        if type(w) is not int:
+            raise TypeError(
+                'the second argument of a tuple in memes has to be of type int')
+        if type(c) is not int:
+            raise TypeError(
+                'the third argument of a tuple in memes has to be of type int')
+
